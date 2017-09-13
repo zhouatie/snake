@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<style>
+    td {
+        width:20px;
+        height:20px;
+        border:1px solid #ccc;
+    }
+</style>
+<body>
+<table>
+    <tr>
+
+    </tr>
+</table>
+</body>
+<script>
+    function Snake(x,y){
+            var _this = this;
+            this.x = x;
+            this.y = y;
+            this.timer = null;
+            var x = x? x:20,
+                y = y? y:20,
+                html = "";
+
+            for(var i = 0;i<x;i++){
+                    html+="<tr>";
+                    for(var j = 0;j<y;j++){
+                            html+="<td></td>"
+                    };
+                    html+="</tr>";
+            };
+            document.getElementsByTagName("table")[0].innerHTML = html;
+
+            this.init();
+            document.onkeydown = function(e){
+                    console.log(e.keyCode);
+                    if((e.keyCode==38 || e.keyCode==40) && _this.direction.substr(1)=='x'){
+                            e.keyCode==38? _this.direction='-y':_this.direction='+y';
+                    };
+                    if((e.keyCode==37 || e.keyCode==39) && _this.direction.substr(1)=='y'){
+                            e.keyCode==37? _this.direction='-x':_this.direction='+x';
+                    };
+                    console.log(_this.direction)
+            }
+    };
+    Snake.prototype = {
+            init : function(){
+                clearInterval(this.timer);
+                this.snake = [[0,2],[0,1],[0,0]];
+                this.apple = this.randomApple();
+                this.direction = '+x';
+                var _this = this;
+                this.run();
+                this.timer = setInterval(function(){
+                        _this.run();
+                },200)
+            },
+            run : function(){
+                    var arr = [];
+
+                    switch(this.direction){
+                        case '+x':
+                                arr[0] = this.snake[0][0];
+                                arr[1] = this.snake[0][1]+1;
+                                if(arr[1]>=this.y){
+                                        arr[1] = 0;
+                                };
+                                break;
+                        case '-x':
+                                arr[0] = this.snake[0][0];
+                                arr[1] = this.snake[0][1]-1;
+                                if(arr[1]<0){
+                                        arr[1] = this.y-1;
+                                };
+                                break;
+                        case '+y':
+                                arr[0] = this.snake[0][0]+1;
+                                arr[1] = this.snake[0][1];
+                                if(arr[0]>=this.x){
+                                        arr[0] = 0;
+                                };
+                                break;
+                        case '-y':
+                                arr[0] = this.snake[0][0]-1;
+                                arr[1] = this.snake[0][1];
+                                //console.log(arr[1],this.y,'thisy')
+                                if(arr[0]<0){
+                                        arr[0] = this.x-1;
+                                };
+                                break;
+
+                };
+                for(var g = 0;g<this.snake.length;g++){
+                        if(arr[0]==this.snake[g][0]&& arr[1]==this.snake[g][1]){
+                                if(confirm('YOU ARE DIE !!! CONTINUE???')){
+                                        this.init();
+                                }else {
+                                        clearInterval(this.timer)
+                                }
+                                return false;
+                        }
+                }
+                this.snake.unshift(arr);
+                if(this.apple[0] == arr[0] && this.apple[1] == arr[1]){
+                        this.randomApple();
+                }else {
+                        this.snake.pop();
+                }
+                this.render();
+            },
+            render : function(){
+                    var tds = document.getElementsByTagName('td');
+
+                    for(var a = 0;a<tds.length;a++){
+                            if((a+1)!=this.apple[0]*this.y+this.apple[1]+1){
+                                    tds[a].style.background = 'white';
+                            }
+                    }
+                    for(var i=0;i<this.snake.length;i++){
+                            var str = document.getElementsByTagName('tr')[this.snake[i][0]];
+                            var td = str.getElementsByTagName("td")[this.snake[i][1]];
+                            td.style.background = "yellow";
+                    };
+            },
+            randomApple : function(){
+                    var x = Math.floor(Math.random()*(this.x));
+                    var y = Math.floor(Math.random()*(this.y));
+                    document.getElementsByTagName('tr')[x].getElementsByTagName('td')[y].style.background = 'red';
+                    for(var i = 0;i<this.snake.length;i++){
+                            if(x == this.snake[i][0] && y==this.snake[i][1]){
+                                    this.randomApple();
+                                    return false;
+                            }
+                    };
+                    this.apple = [x,y];
+                    return [x,y];
+            }
+    };
+    var snake = new Snake(20,20);
+
+
+</script>
+</html>
